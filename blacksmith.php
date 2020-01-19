@@ -1,12 +1,26 @@
 <?php
 
-/**
- * createGameData
- * Creates a new session data
- * 
- * @return bool
- */
+/**********************************************
+ * STARTER CODE
+ **********************************************/
 
+/**
+ * clearSession
+ * This function will clear the session.
+ */
+function clearSession()
+{
+  session_unset();
+  header("Location: " . $_SERVER['PHP_SELF']);
+}
+
+/**
+ * Invokes the clearSession() function.
+ * This should be used if your session becomes wonky
+ */
+if (isset($_GET['clear'])) {
+  clearSession();
+}
 
 /**
  * getResponse
@@ -14,7 +28,8 @@
  * 
  * @return string
  */
-function getResponse () {
+function getResponse()
+{
   return implode('<br><br>', $_SESSION['blacksmith']['response']);
 }
 
@@ -26,15 +41,38 @@ function getResponse () {
  * @param [string] $response
  * @return string
  */
-function updateResponse ($response) {
+function updateResponse($response)
+{
   if (!isset($_SESSION['blacksmith'])) {
     createGameData();
-  } 
+  }
 
   array_push($_SESSION['blacksmith']['response'], $response);
 
   return getResponse();
 }
+
+/**
+ * help
+ * Returns a formatted string of game instructions
+ * 
+ * @return string
+ */
+function help()
+{
+  return 'Welcome to Blacksmith, the text based blacksmith game. Use the following commands to play the game: <span class="red">buy <em>item</em></span>, <span class="red">sell <em>item</em></span>, <span class="red">make <em>item</em></span>, <span class="red">fire</span>. To restart the game use the <span class="red">restart</span> command For these instruction again use the <span class="red">help</span> command';
+}
+
+/**********************************************
+ * YOUR CODE BELOW
+ **********************************************/
+
+/**
+ * createGameData
+ * Creates a new session data
+ * 
+ * @return bool
+ */
 
 /**
  * fire
@@ -43,7 +81,6 @@ function updateResponse ($response) {
  * 
  * @return string
  */
-
 
 /**
  * buy
@@ -54,7 +91,6 @@ function updateResponse ($response) {
  * @return string
  */
 
-
 /**
  * make
  * Used to make new items (swords, axes, or staffs)
@@ -63,7 +99,6 @@ function updateResponse ($response) {
  * @param [string] $item
  * @return string
  */
-
 
 /**
  * sell
@@ -74,14 +109,12 @@ function updateResponse ($response) {
  * @return string
  */
 
-
 /**
  * inventory
  * Used to return session data (formatted)
  * 
  * @return string
  */
-
 
 /**
  * restart
@@ -90,17 +123,6 @@ function updateResponse ($response) {
  *  
  * @return string
  */
-
-
-/**
- * help
- * Returns a formatted string of game instructions
- * 
- * @return string
- */
-function help () {
-  return 'Welcome to Blacksmith, the text based blacksmith game. Use the following commands to play the game: <span class="red">buy <em>item</em></span>, <span class="red">sell <em>item</em></span>, <span class="red">make <em>item</em></span>, <span class="red">fire</span>. To restart the game use the <span class="red">restart</span> command For these instruction again use the <span class="red">help</span> command';
-}
 
 /**
  * Create a response based on the players commands
@@ -118,4 +140,3 @@ function help () {
  *    - else
  *      - updateResponse with invalid command  
  */
-

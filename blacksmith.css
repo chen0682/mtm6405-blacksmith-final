@@ -1,9 +1,10 @@
-html, body {
+html,
+body {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  
+
   height: 100%;
   width: 100%;
   font-family: sans-serif;
@@ -39,12 +40,21 @@ form {
   margin: 15px 0;
   padding: 10px 20px;
 
-  border: 1px solid #999; 
+  border: 1px solid #999;
   border-radius: 2px;
   box-sizing: border-box;
   color: #999;
   font-family: monospace;
   font-size: 2em;
   text-decoration: none;
-  
+}
+
+
+.clear {
+  position: fixed;
+  right: 10px;
+  bottom: 10px;
+
+  color: #333;
+  text-decoration: none;
 }
