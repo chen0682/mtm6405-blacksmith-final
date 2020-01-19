@@ -1,5 +1,7 @@
 <?php
 
+session_start();
+
 /**********************************************
  * STARTER CODE
  **********************************************/
@@ -73,6 +75,21 @@ function help()
  * 
  * @return bool
  */
+function createGameData()
+{
+  $_SESSION['blacksmith'] = [
+    'response' => [],
+    'gold' => 15,
+    'wood' => 0,
+    'ore' => 0,
+    'sword' => 0,
+    'axe' => 0,
+    'staff' => 0,
+    'fire' => false
+  ];
+
+  return isset($_SESSION['blacksmith']);
+}
 
 /**
  * fire
@@ -81,6 +98,21 @@ function help()
  * 
  * @return string
  */
+function fire()
+{
+  if ($_SESSION['blacksmith']['fire']) {
+    $_SESSION['blacksmith']["fire"] = false;
+    return "You have put out the fire";
+  } else {
+    if ($_SESSION['blacksmith']['wood'] > 0) {
+      $_SESSION['blacksmith']["wood"]--;
+      $_SESSION['blacksmith']["fire"] = true;
+      return "You have started a fire";
+    } else {
+      return "You do not have enough wood";
+    }
+  }
+}
 
 /**
  * buy
@@ -90,6 +122,29 @@ function help()
  * @param [string] $item
  * @return string
  */
+function buy($item)
+{
+  if ($_SESSION['blacksmith']['fire']) {
+    return "You must put out the fire";
+  } else {
+    if (isset($item)) {
+      if (isset(SETTINGS[$item])) {
+        if ($_SESSION['blacksmith']['gold'] >= SETTINGS[$item]['gold']) {
+          $_SESSION['blacksmith'][$item]++;
+          $_SESSION['blacksmith']['gold'] -= SETTINGS[$item]['gold'];
+
+          return "You have bought 1 piece of {$item}.";
+        } else {
+          return "You do not have enough gold.";
+        }
+      } else {
+        return "You cannot buy a {$item}.";
+      }
+    } else {
+      return "You must choose an item to buy.";
+    }
+  }
+}
 
 /**
  * make
@@ -99,6 +154,30 @@ function help()
  * @param [string] $item
  * @return string
  */
+function make($item)
+{
+  if (!$_SESSION['blacksmith']['fire']) {
+    return "You must start the fire";
+  } else {
+    if (isset($item)) {
+      if (isset(SETTINGS[$item])) {
+        if ($_SESSION['blacksmith']['wood'] >= SETTINGS[$item]['wood'] && $_SESSION['blacksmith']['ore'] >= SETTINGS[$item]['ore']) {
+          $_SESSION['blacksmith'][$item]++;
+          $_SESSION['blacksmith']['wood'] -= SETTINGS[$item]['wood'];
+          $_SESSION['blacksmith']['ore'] -= SETTINGS[$item]['ore'];
+
+          return "You have made 1 {$item}.";
+        } else {
+          return "You do not have enough resources.";
+        }
+      } else {
+        return "You cannot make a {$item}.";
+      }
+    } else {
+      return "You must choose an item to make.";
+    }
+  }
+}
 
 /**
  * sell
@@ -108,6 +187,35 @@ function help()
  * @param [string] $item
  * @return string
  */
+function sell($item)
+{
+  if ($_SESSION['blacksmith']['fire']) {
+    return "You must put out the fire";
+  } else {
+    if (isset($item)) {
+      if (isset(SETTINGS[$item])) {
+        if ($_SESSION['blacksmith'][$item]) {
+          $price = rand(SETTINGS[$item]['sell_min'], SETTINGS[$item]['sell_max']);
+
+          $_SESSION['blacksmith']['gold'] += $price;
+          $_SESSION['blacksmith'][$item]--;
+
+          if ($price === 1) {
+            return "You have sold 1 {$item} for {$price} piece of gold.";
+          } else {
+            return "You have sold 1 {$item} for {$price} pieces of gold.";
+          }
+        } else {
+          return "You do not have that item.";
+        }
+      } else {
+        return "You cannot sell {$item}.";
+      }
+    } else {
+      return "You must choose an item to sell.";
+    }
+  }
+}
 
 /**
  * inventory
@@ -115,6 +223,24 @@ function help()
  * 
  * @return string
  */
+function inventory()
+{
+  $responses = '';
+
+  foreach ($_SESSION['blacksmith'] as $item => $value) {
+    if ($item === 'fire') {
+      if ($value) {
+        $responses .= "The fire is going";
+      } else {
+        $responses .= "The fire is out";
+      }
+    } else if (!is_array($value)) {
+      $responses .= "{$value} ${item}<br>";
+    }
+  }
+
+  return $responses;
+}
 
 /**
  * restart
@@ -123,6 +249,12 @@ function help()
  *  
  * @return string
  */
+function restart()
+{
+  createGameData();
+
+  return 'The game has restarted';
+}
 
 /**
  * Create a response based on the players commands
@@ -140,3 +272,15 @@ function help()
  *    - else
  *      - updateResponse with invalid command  
  */
+if (isset($_POST['command'])) {
+  $command = explode(' ', strtolower($_POST['command']));
+  if (function_exists($command[0])) {
+    if (isset($command[1])) {
+      updateResponse($command[0]($command[1]));
+    } else {
+      updateResponse($command[0]());
+    }
+  } else {
+    updateResponse("{$_POST['command']} is not a valid command");
+  }
+}
